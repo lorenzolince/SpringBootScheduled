@@ -5,7 +5,6 @@
  */
 package com.llh.scheduled.job;
 
-import java.util.Calendar;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +26,8 @@ public class TestJobMain implements ItestJob {
     private ScheduledAnnotationBeanPostProcessor postProcessor;
     @Autowired
     AutowireCapableBeanFactory beanFactory;
+    @Autowired
+    TestJob testJob;
 
     @Override
     @Scheduled(initialDelayString = "${test.initial.delay.in.milliseconds:10000}", fixedRateString = "${test.fixed.delay.in.milliseconds:1000}")
@@ -34,18 +35,13 @@ public class TestJobMain implements ItestJob {
         String testValue = System.getProperty("test.job");
         LOGGER.info("test job main #################  \n" + testValue);
         if (testValue.equals("START")) {
-            Calendar calendar = Calendar.getInstance();
-            int hour = calendar.get(Calendar.HOUR_OF_DAY);
-            int minute = calendar.get(Calendar.MINUTE);
-            
-            System.setProperty("test.cron", "0 " + (minute + 1) + " " + hour + " * * ?");
-            TestJob testJob1 = (TestJob) beanFactory.createBean(TestJob.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
-            testJob1.setMessage("testJob1");
-            postProcessor.postProcessAfterInitialization(testJob1, "testJob1");
+            System.setProperty("test.cron", "25 * * * * ?");
+            testJob.setInstanceBean("testJob");
+            postProcessor.postProcessAfterInitialization(testJob, "testJob");
 
-            System.setProperty("test.cron", "0 " + (minute + 2) + " " + hour + " * * ?");
+            System.setProperty("test.cron", "45 * * * * ?");
             TestJob testJob2 = (TestJob) beanFactory.createBean(TestJob.class, AutowireCapableBeanFactory.AUTOWIRE_BY_TYPE, false);
-            testJob2.setMessage("testJob2");
+            testJob2.setInstanceBean("testJob2");
             postProcessor.postProcessAfterInitialization(testJob2, "testJob2");
             System.setProperty("test.job", "DEFAULT");
 
